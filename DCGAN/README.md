@@ -1,7 +1,17 @@
+### Result
+Generator를 통과해 생성된 이미지를 출력한 결과입니다.
+| 0 Epoch        | 1 Epoch       | 10 Epoch        | 20 Epoch        |
+|----------------------|--------------------------|-----------------------|-----------------------|
+|![0](https://github.com/user-attachments/assets/df118543-0da0-4670-8614-d67314081a02) |![469](https://github.com/user-attachments/assets/97e27abe-4f38-4caf-ad8c-fedccca73ec3) | ![5159](https://github.com/user-attachments/assets/c9486bec-8309-40a0-9a09-fbd7447c8932) |![8911](https://github.com/user-attachments/assets/b11d2289-fd16-4350-bb82-696fba3d89dc) |
+
+<br>
+
 ## [논문정리]Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks (2015), Radford et al.,
 
 ### Problem statement
 라벨이 없는 데이터셋으로부터 GAN을 사용하여 의미 있는 특징을 학습하고, 이 학습된 표현을 이미지 생성뿐만 아니라 이미지 분류와 같은 다양한 downstream task에 적용할 수 있는 비지도 학습 방법을 구현  
+
+<br>
 
 ### Solution approach
 기존 GAN과 달리, DCGAN은 Convolution layer, Batchnorm, Activation function을 조정해서 기존 GAN의 문제점을 해결
@@ -13,9 +23,14 @@
 	- CNN을 generator에서 fake image 생성에 쓰기 위해, Fractional-Strided Convolution을 활용하여 Upsampling 과정을 학습함
 	- Generator의 마지막 레이어, Discriminator의 첫 번째 레이어를 제외한 부분에, Batch normalization을 적용해 학습을 안정화함
 
+<br>
+
 ### Conclusion
 - GAN의 훈련 불안정성 문제 완화
 - 이미지 생성 품질 개선
+
+<br>
+
 ### Strong points
 - 비지도 학습의 가능성
 	라벨 없이도 고차원적 이미지를 표현할 수 있는 능력을 보이며, DCGAN 구조가 비지도 학습에 효과적임을 제시
@@ -24,6 +39,8 @@
 - 모델 설명의 명확성
 	모델 구조와 학습 절차를 명확하게 설명
 
+<br>
+
 ### Weak points
 - 데이터셋 의존성
 	특정 데이터셋에 의존할 수 있으며, 새로운 도메인의 데이터셋에서는 동일한 성능을 기대하기 어려울 수 있음
@@ -31,6 +48,8 @@
 	이미지 Representation Learning의 성능을 정량적으로 평가하는 실험이 부족
 - 학습 불안정성
 	기존 GAN에 비해서는 안정화됐지만, 여전히 불안정
+
+<br>
 
 ### Questions
 다른 Representation Learning 기법과 DCGAN을 결합해볼 수 있을지
