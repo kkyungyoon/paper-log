@@ -9,7 +9,7 @@ Generator를 통과해 생성된 이미지를 출력한 결과입니다.
 ## [논문정리]Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks (2015), Radford et al.,
 
 ### Problem statement
-- 지도 학습에서 CNN의 성공과 Unsupervised Learning 간의 격차를 해소
+- 지도 학습에서 CNN의 성공과 Unsupervised Learning 간의 격차를 해소
 - 특정 구조적 제약을 가진 CNN의 한 종류인 **심층 합성곱 생성적 적대 신경망(DCGAN, Deep Convolutional Generative Adversarial Networks)** 을 소개하며, 이를 Unsupervised Learning의 강력한 후보로 제안
 - 라벨이 없는 Data Set으로부터 GAN을 사용하여 의미 있는 특징을 학습하고, 이 학습된 표현을 이미지 생성뿐만 아니라 이미지 분류와 같은 다양한 Downstream Task에 적용할 수 있는 Unsupervised Learning 방법을 구현  
 
@@ -28,7 +28,7 @@ Generator를 통과해 생성된 이미지를 출력한 결과입니다.
 <br>
 
 ### Conclusion
-- GAN을 훈련하기 위한 더 안정적인 아키텍처를 제안하고, Adversarial Networks가 Supervised Learning과 생성 모델링에 적합한 이미지 표현을 학습한다는 증거를 제공함
+- GAN을 훈련하기 위한 더 안정적인 아키텍처를 제안하고, Adversarial Networks가 Supervised Learning과 생성 모델링에 적합한 이미지 표현을 학습한다는 증거를 제공함
 - GAN의 훈련 불안정성 문제 완화 및 이미지 생성 품질 개선
 - 하지만 여전히 모델 불안정성의 일부 형태가 남아 있음 (예, 모델이 더 오래 훈련되면 일부 필터가 단일 진동 모드로 수렴하는 문제가 발생하는 경우가 존재)
 	- 단일 진동 모드 : 필터가 입력 데이터의 특정 패턴(예: 단일 주파수나 색상, 텍스처 등)에만 반응하며, 이를 계속 반복적으로 활성화
