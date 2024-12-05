@@ -9,10 +9,10 @@ Generator를 통과해 생성된 이미지를 출력한 결과입니다.
 ## [논문정리]Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks (2015), Radford et al.,
 
 ### Problem statement
-- 특정 구조적 제약을 가진 CNN의 한 종류인 **심층 합성곱 생성적 적대 신경망(DCGAN, Deep Convolutional Generative Adversarial Networks)** 을 소개하며, 이를 Unsupervised Learning의 강력한 후보로 제안
+1) 특정 구조적 제약을 가진 CNN의 한 종류인 **심층 합성곱 생성적 적대 신경망(DCGAN, Deep Convolutional Generative Adversarial Networks)** 을 소개하며, 이를 Unsupervised Learning의 강력한 후보로 제안
 	- Unsupervised Learning으로 생각되지 않았던 GAN을 Unsupervised Learning의 관점으로 바라봄   
   	- 라벨이 없는 Data Set으로부터 GAN을 사용하여 의미 있는 특징을 학습하고, 이 학습된 표현을 이미지 생성뿐만 아니라 이미지 분류와 같은 다양한 Downstream Task에 적용할 수 있는 Unsupervised Learning 방법을 구현
-- 기존 GAN의 문제점(낮은 해상도, 훈련 불안정성)
+2) 기존 GAN의 문제점(낮은 해상도, 훈련 불안정성)
 
 <br>
 
