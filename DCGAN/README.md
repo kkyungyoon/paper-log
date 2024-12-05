@@ -9,18 +9,17 @@ Generator를 통과해 생성된 이미지를 출력한 결과입니다.
 ## [논문정리]Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks (2015), Radford et al.,
 
 ### Problem statement
-- 지도 학습에서 CNN의 성공과 Unsupervised Learning 간의 격차를 해소
 - 특정 구조적 제약을 가진 CNN의 한 종류인 **심층 합성곱 생성적 적대 신경망(DCGAN, Deep Convolutional Generative Adversarial Networks)** 을 소개하며, 이를 Unsupervised Learning의 강력한 후보로 제안
-- 라벨이 없는 Data Set으로부터 GAN을 사용하여 의미 있는 특징을 학습하고, 이 학습된 표현을 이미지 생성뿐만 아니라 이미지 분류와 같은 다양한 Downstream Task에 적용할 수 있는 Unsupervised Learning 방법을 구현  
+	- Unsupervised Learning으로 생각되지 않았던 GAN을 Unsupervised Learning의 관점으로 바라봄   
+  	- 라벨이 없는 Data Set으로부터 GAN을 사용하여 의미 있는 특징을 학습하고, 이 학습된 표현을 이미지 생성뿐만 아니라 이미지 분류와 같은 다양한 Downstream Task에 적용할 수 있는 Unsupervised Learning 방법을 구현
+- 기존 GAN의 문제점(낮은 해상도, 훈련 불안정성)
 
 <br>
 
 ### Solution approach
-기존 GAN과 달리, DCGAN은 Convolution Layer, Batchnorm, Activation Function을 조정해서 기존 GAN의 문제점을 해결
-- 기존 GAN의 문제점
-	- 낮은 해상도
-	- 훈련 불안정성
-- 해결 
+1) GAN을 Unsupervised Learning으로 보고 GAN으로 Pretrain 시킨 다음, Representation을 잘 학습한 Discriminator만 따로 분리해 다른 Task 진행
+
+2) 기존 GAN의 문제점을 완화하기 위해 Convolution Layer, Batchnorm, Activation Function을 조정해서 문제점을 완화
 	- Fully Connected Layer 없이, Convolution Layer만을 사용하여 모델의 복잡성을 줄이고 학습 효율을 높임
 	- Generator에서 Fake Image 생성에 CNN을 쓰기 위해, Fractional-Strided Convolution을 활용하여 Upsampling 과정을 학습함
 	- Generator의 마지막 레이어, Discriminator의 첫 번째 레이어를 제외한 부분에, Batch Normalization을 적용해 학습을 안정화함
