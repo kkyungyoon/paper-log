@@ -18,3 +18,11 @@
 ---
 
 ### 📚 논문 리뷰 목록
+
+#### 1️⃣ [Auto-Encoding Variational Bayes](https://arxiv.org/abs/1312.6114)
+- **저자:** Diederik P Kingma, Max Welling
+- **컨퍼런스:** arXiv 2013
+
+#### 2️⃣ [Learning Disentangled Representations with Semi-Supervised Deep Generative Models](https://arxiv.org/abs/1706.00400)
+- **저자:** N. Siddharth, Brooks Paige, Jan-Willem van de Meent, Alban Desmaison, Noah D. Goodman, Pushmeet Kohli, Frank Wood, Philip H.S. Torr
+- **컨퍼런스:** arXiv 2017
