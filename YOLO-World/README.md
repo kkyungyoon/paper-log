@@ -358,11 +358,11 @@
 <br>
 
 ### Weak points
-
+- Offline vocabulary를 만들 때 메모리를 많이 차지할 거 같다.
 
 <br>
 
 ### Questions
-- 부정명사를 무작위 샘플링한다고 했는데 어디서 샘플링을 하는 걸까
-
+- 부정명사를 무작위 샘플링한다고 했는데 어디서 샘플링을 하는 걸까?  
+- infoNCE Loss를 사용하지않고 Cross entropy loss를 사용한 이유가 뭘까?  
 ### New ideas / Comments
