@@ -1,4 +1,4 @@
-## [논문정리]YOLO-World: Real-Time Open-Vocabulary Object Detection (2024), Tianheng Cheng, Lin Song, Yixiao Ge, Wenyu Liu, Xinggang Wang, Ying Shan
+![image](https://github.com/user-attachments/assets/a60b23c7-774f-4f6c-941a-fde7a11baa74)## [논문정리]YOLO-World: Real-Time Open-Vocabulary Object Detection (2024), Tianheng Cheng, Lin Song, Yixiao Ge, Wenyu Liu, Xinggang Wang, Ying Shan
 
 ### Problem statement
 - YOLO는 사전 정의되고 학습된 객체 카테고리에 의존하기 때문에 개방형 환경에서는 그 활용에 제한이 있다.
@@ -44,6 +44,26 @@
 
 ### Solution approach
 - YOLO World 구조 : YOLO 표준 아키텍처 + 입력 텍스트를 인코딩하기 위해 사전 학습된 CLIP의 텍스트 인코더 사용
+  ![image](https://github.com/user-attachments/assets/497b240d-579e-4835-a468-abaaf0fde044)
+  - Text Encoder
+    사용자의 prompt를 Text Embedding으로 변환
+    이 임베딩은 오프라인 어휘로 저장되어 이후 모델 가중치로 재구성
+  - Image Encoder
+    입력 이미지를 Multi-scale Image Features로 변환
+    YOLO 백본을 사용해 각 계층에서 feature map을 추출
+  - Vision-Language PAN(RepVL-PAN)
+    Multi-level Cross-Modality Fusion을 수행
+    : 이미지 특징과 텍스트 특징을 결합하여 시각적인 의미 표현을 강화
+    Region-Text Matching : 객체의 이미지 임베딩과 텍스트 임베딩을 매칭
+  - Prediction
+    Bounding Box Regressor : 객체의 Bbox를 예측
+    Text Contrastive Head : 텍스트 임베딩과 매칭된 객체를 분류
+
+- YOLO World의 동작 과정
+  Train : Prompt에서 명사를 추출 -> 텍스트를 인코딩하여 Text Embedding 생성
+  Deployment : Prompt로 오프라인 어휘 생성 -> 이 어휘를 모델의 가중치로 재구성하여 추론에서 활용
+  Inference : 입력 이미지와 오프라인 어휘를 활용해, Bbox와 객체를 빠르게 예측
+
 - Vision-Language Modeling, 대규모 Data Set에 대한 Pre-training을 통해 YOLO의 기능을 확장한다.
   
 - RepVL-PAN(Re-parrameterizable Vision-Language Path Aggregation Network)
@@ -65,7 +85,7 @@
   
   2) Previous Open Vocabulary Detectors
     최근 OVD 접근 방식은, Vision Language Pre traing의 성공에 힘입어, OVD를 이미지-텍스트 매칭 문제로 재정의 했다.
-  - 이전의 Open Vocabulary 검출기들은, 사용자의 prompt를 텍스트 인코더로 인코딩하여, Online Vocabulary를 생성한 후, 객체를 검출한다.
+  - 사용자의 prompt를 텍스트 인코더로 인코딩하여, Online Vocabulary를 생성한 후, 객체를 검출한다.
   - 이미지와 텍스트를 동시에 인코딩하여 예측을 수행한다.
   - 사용자가 입력한 Prompt를 기반으로 Online Vocabulary를 생성한다.
   - (한계점) 이미지-텍스트를 동시에 인코딩하므로 계산 비용이 높고, 실용성이 부족하다.
@@ -74,6 +94,7 @@
   - 대형검출기, 무거운 Backbone을 사용한다.
   
   3) YOLO-World
+  - 경량 YOLO 프레임워크 기반
   - Lightweight Detector 기반으로 설계되었다.
   - prompt-then-detect 패러다임 도입
     ```
@@ -91,6 +112,177 @@
     - Online Vocabulary : 모델이 Inference 중에 실시간으로 prompt를 인코딩하여 어휘를 생성하는 방식
     - Offline Vocabulary : Inference 전에 사전 정의된 어휘를 미리 인코딩하고 저장해두고, Inference 중에는 인코딩 없이 재사용하는 방식
     ```
+Method
+1) Pre-training Formulation : Region-Text Pairs
+- 전통적인 객체 검출방법(ex, YOLO 시리즈) : Instance Annotations을 {경계상자 Bi, 카테고리레이블 ci}
+- YOLO World : Instance Annotations을 Region-Text Pairs {경계상자 Bi, 영역Bi에 해당하는 텍스트 ti}, ti : 카테고리 이름, 명사구, 객체설명 등
+- YOLO World Input : 이미지 I, 텍스트 T(명사집합)
+- YOLO World Output : 예측된 Bbox들, 해당 객체 임베딩들
+
+2) Model Architecture
+- Text Encoder
+  사용자의 prompt를 Text Embedding으로 인코딩
+  이 임베딩은 오프라인 어휘로 저장되어 이후 모델 가중치로 재구성
+  CLIP으로 사전학습된 Transformer 기반 Text Encoder를 사용하여 Text Embedding 추출 : W
+  (CLIP Text Encoder의 특징 1) 텍스트 전용 언어 인코더 BERT에 비해, 시각적 객체와 텍스트를 연결하는 능력이 더 뛰어남
+  (CLIP Text Encoder의 특징 2) 입력 텍스트가 캡션, 참조표현인 경우, n-gram 알고리즘을 사용해 명사구를 추출하여, 명사구를 text encoder에 입력하여 임베딩 생성
+  
+
+- Image Encoder
+  입력 이미지를 Multi-scale Image Features로 변환
+  YOLO 백본을 사용해 각 계층에서 feature map을 추출
+  YOLOv8기반으로 개발됨
+  - YOLOv8의 구조
+    - Darknet Backbone : 이미지 인코더로 사용. 입력이미지에서 다양한 수준의 Feature 추출
+    - PAN(Path Aggregation Network) : Multi scale Feature Pyramid 생성, 다양한 계층의 특징을 통합하여 객체 검출 성능을 강화
+    - Head : Bbox Regression(객체의 위치를 예측), Object Embedding(객체의 텍스트 임베딩과 매칭하기 위한 임베딩 벡터 생성)
+      
+- Vision-Language PAN(RepVL-PAN)
+  Multi-level Cross-Modality Fusion을 수행
+  : 이미지 특징과 텍스트 임베딩을 결합하여 Cross Modality Fusion을 통해 시각적인 의미 표현을 강화
+  Region-Text Matching : 객체의 이미지 임베딩과 텍스트 임베딩을 매칭
+
+- Text contrastive head
+  YOLO World에서는 분리된 헤드를 채택
+  2개의 3 x 3 convolution layer를 사용해, 경계상자 bk, 객체임베딩 ek를 예측함(k: 객체의 개수)
+  Text contrastive head는, 객체 임베딩과 텍스트 임베딩간의 유사도 s를 계산 -> 이걸 리턴함(ex, K개의 객체, C개의 텍스트 -> K x C의 유사도행렬)
+  ![image](https://github.com/user-attachments/assets/45b64754-a59d-40a1-93a0-ca1770f84fbe)
+  학습 가능한 계수 alpha(스케일링 계수), beta(shifing 계수)를 추가 = Affine Transformation(선형변환)
+  -> L2 정규화와 선형변환은 Region-text 학습의 안정성 높임
+
+- Training with online vocabulary
+  YOLO World는 train동안, mosaic sample에 대해 online vocabulary T를 생성
+  과정
+    - 긍정명사 추출 : 모자이크 이미지에 포함된 명사
+    - 부정명사 샘플링 : 모자이크 이미지에 실제로 나타나지 않은 객체 명사 무작위 샘플링
+    - 최대어휘크기 M : default=80
+  목적
+    - 긍정명사 : 실제로 존재하는 객체와 관련된 텍스트 제공하여 정확한 매칭을 학습하도록 도움
+    - 부정명사 : 잘못된 객체-텍스트 매칭을 방지하도록 학습 안정화
+ 
+- Inference with offline vocabulary
+  효율성을 극대화하기 위해 offline vocabulary을 활용한 Prompt-then-Detect 전략
+  1. 사용자 prompt 입력
+  2. 텍스트 인코더를 통해 텍스트 임베딩으로 인코딩
+  3. 해당 임베딩은 offline vocabulary로 저장
+  4. 추론 전에 미리 수행되며, 한 번만 인코딩하면 됨
+  5. offline vocabulary를 모델의 weight로 re-parameterization하여 추론 중 추가적인 인코딩 작업 생략
+     추론 시에는 텍스트 인코더 호출하지 않고, 미리 계산된 오프라인 어휘 임베딩 사용
+  6. 입력 이미지에 대해 YOLO 검출기를 사용해 객체의 bbox와 임베딩을 예측하고, 객체임베딩과 offline vocabulary 임베딩의 유사도 점수를 계산하여, 가장 유사한 명사를 객체에 할당
+
+3) Re-parameterizable Vision-Language PAN
+![image](https://github.com/user-attachments/assets/378da8b9-c896-4c29-9ab7-a1d2c2284b36)
+(개인이해)
+  - 상단 컬러 토큰 : 텍스트 임베딩
+  - C3, C4, C5 : 멀티 스케일 이미지 feature map
+  - P3, P4, P5 : 최종 출력 feature map (YOLO World head로 전달되어 객체검출, 텍스트 매칭에 사용됨)
+
+- Text-guided CSPLayer
+  텍스트 정보를 이미지 특징에 주입하는 과정
+  기존의 CSPNet은 이미지 특징의 효율적 융합을 목표로 하지만, (기존 YOLOv5, v8등에서 사용되며, 입력 특징을 절반으로 나눠 병렬 경로로 처리한 후 다시 결합하는 것)
+  T-CSPLayer는 추가적으로 텍스트 임베딩을 통합하여 텍스트 기반의 weight 조정, feature 조정 수행
+  이미지 feature map에 텍스트 임베딩을 함께 입력하면
+  텍스트 정보를 기반으로 특정 이미지 특징을 강조하거나 억제하여, 텍스트 의미와 연관된 이미지 특징을 더 잘 나타내도록 학습
+  ex, prompt로 dog가 입력되면, 이미지의 dog 관련 특징을 더 강조하고, 비관련특징을 억제함
+
+  과정
+  ![image](https://github.com/user-attachments/assets/bbfa2e25-eefd-4529-8aad-3cfb751bfb02)
+  1) YOLO의 이미지 특징과 텍스트 임베딩 W를 dot product하여 similarity map을 생성
+  2) 모든 텍스트 임베딩 W1, ..., Wc에 대해 최대값 선택 = 모든 텍스트 임베딩에 대해 가장 관련성 높은 텍스트 선택 = 각 픽셀 위치에서 가장 관련성 높은 명사 선택
+  3) 시그모이드 = 유사도 값을 [0, 1]로 정규화 = 이미지 특징에 곱해질 가중치 역할
+  ex, 이미지 특징 = 강아지, 고양이, 사람이 포함된 이미지 특징
+  텍스트 프롬프트 = dog, cat, person
+  이미지 특징과 dog의 유사도 계산, 이미지 특징과 cat의 유사도 계산, 이미지 특징과 person의 유사도 계산(방향이 유사하다면 내적값이 크게 나오고, orthogonal하거나 반대방향이면 내적값이 작거나 음수)
+  각 픽셀에서 가장 높은 유사도를 가지는 텍스트 선택
+  시그모이드로 가중치 적용
+
+- Image Pooling Attention
+  텍스트 임베딩을 이미지 특성에 맞게 조정하는 과정
+  이미지 특징을 global pooling 수행하여 global image representation 생성
+  global image representation은 텍스트 임베딩의 가중치 조정에 사용됨
+  결과적으로 이미지에 민감한 텍스트 임베딩 생성
+  ![image](https://github.com/user-attachments/assets/c6d63c19-6c0e-44b1-aec8-ff780a40939b)   
+  기존의 텍스트 임베딩 W + 이미지 패치 X tilda와의 상호작용을 반영한 새로운 정보 = 업데이트된 텍스트 임베딩(이미지의 전역 정보를 반영한 텍스트 표현)
+  텍스트 임베딩 W : Query
+  이미지 패치 X tilda : Key, Value
+  (이미지 패치 X tilda 생성과정
+  - 멀티스케일 특징 X를 R x R 크기의 작은 영역으로 분할
+  - 각 영역에 대해 max pooling 적용
+  - 스케일 S에 대해 모두 이 과정을 수행(S : YOLO의 계층 수))
+  텍스트 임베딩에 대해 R x R개의 이미지 패치가 MHA으로 상호작용 
+    
+- 동작과정
+  1. Input : 이미지 인코더에 의해 생성된 멀티스케일 특징, 텍스트 임베딩(텍스트인코더에서 나온)
+  2. T-CSPLayer : 이미지 feature와 텍스트 임베딩을 결합하여 이미지 feature를 조정 -> 효과 : 특정 텍스트와 관련된 이미지 feature가 강조 또는 억제됨
+     Output : 텍스트로 조정된 이미지 특징
+  3. I-Pooling Attention : 이미지 feauture를 global pooling하여 이미지 전역표현생성 -> 텍스트 임베딩 가중치 조정에 사용 -> 효과 : 이미지 인식과 관련된 텍스트 임베딩 강화
+     Output : 이미지에 민감한 텍스트 임베딩
+
+4) Pre-training Schemes
+- Learning from Region-Text Contrastive Loss
+  ![image](https://github.com/user-attachments/assets/7bbc6ef2-8f02-400f-b6c9-3fcb3a7d8383)
+  Lcon(Region-text contrastive loss) : 텍스트와 객체간의 매칭을 학습 (예측된 객체와 텍스트 간의 유사도점수 계산 -> 예측된 유사도 점수와 실제 라벨 비교해서 cross entropy loss 계산)
+  Liou, Ldfl(distributed focal loss) : 정확한 bbox 회귀 학습(Liou : 정확한 bbox 학습, Ldfl : 라벨 불균형 완화)
+  lambda : 데이터 셋 특성에 따라 1, 0으로 손실 함수 조정해서 효율성 극대화
+  - Detection, Grounding 데이터 셋 : Lcon + Liou + Ldfl(lambda=1)
+  - Image-text 데이터 셋 : Lcon(lambda=0)
+
+- Pseudo Labeling with Image-Text Data
+  자동 레이블링 방식을 통해 Region-text pairs를 생성하여 학습
+  - n-gram 알고리즘 사용해서 텍스트에서 명사구 추출
+  - GLIP등 사전학습된 open vocabulary detector 사용해서 pseudo labeling하여, 명사구에 대응하는 bbox를 자동생성
+  - CLIP을 사용해 연관성 낮은 pseudo label과 이미지 제거, NMS로 중복된 경계 상자 제거
+  결과 : CC3M 데이터 셋(246,000개 이미지 샘플)에서 821,000개의 Region-Text Pairs 생성
+  효과 : 효율적인 데이터 준비, 텍스트 기반 객체 검출 성능과 Zero-Shot 학습 능력을 강화
+
+Experiments
+![image](https://github.com/user-attachments/assets/da7a588f-7930-45ac-b557-392005e949b5)
+- Vision language 기반 zero shot 객체 검출을 위해 설계된 SOTA 수준 보여주는 방법들과 비교 : GLIP, GLIPv2, Grounding DINO, DetCLIP
+- 비교기준 : AP(zero shot 성능), inference speed, model parameters, pretraining data
+- 결과 1 : YOLO-World는 LVIS에서 Zero-Shot 성능(AP) 기준으로 35.4 AP를 달성
+- 결과 2 : YOLO-World-S는 13M 파라미터라는 경량 구성에서도 강력한 Zero-Shot 성능을 보임
+- 결과 3 : DetCLIP 대비 20배 빠른 추론 속도
+- 결과 4 : GLIP, GLIPv2, Grounding DINO와 달리 Cap4M (CC3M + SBU)와 같은 추가 데이터 없이도 더 나은 성능을 보임
+  
+3) Ablation Experiments
+   ![image](https://github.com/user-attachments/assets/414f405d-28bb-41e1-8671-b1868f6721bb)
+- 사전 학습 데이터의 다양성
+  다양한 데이터셋이 사전 학습 성능 및 Zero-Shot 검출 성능에 미치는 영향을 분석
+  Objects365 단독 사용 vs. Objects365 + GoldG 사용   
+  결과 : 데이터 셋의 다양성이 모델성능에 긍정적 영향 미침
+- pseudo labeling 효과
+  CC3M 데이터셋에서 생성된 pseudo label이 모델 학습에 기여하는 정도 평가
+  결과 : 성능에 유의미한 기여함
+
+  ![image](https://github.com/user-attachments/assets/e17ed39c-f0e9-4941-bff3-784b86e07006)
+- 텍스트 인코더 역할
+  Frozen vs. Fine-tuned
+  결과
+  - BERT-base는 Frozen에서 APr 성능이 매우 낮다.
+  - BERT-base는 Fine tuning하니 성능이 향상 됐다.
+  - CLIP-base는 Frozen에서 AP, APr 모두 BERT보다 성능이 높다.
+  - CLIP-base는 Fine tuning하니 
+  ![image](https://github.com/user-attachments/assets/ee875e8e-7ef7-437c-9d02-18cb9b4610e4)
+- GQA 데이터셋 사용여부, T-I(Text guided CSPLayer), I-T(Image pooling attention)
+- AP : 전체 검출 성능
+- APr : Rare 카테고리에서의 AP
+- APc : Common 카테고리에서의 AP
+- APf : Frequent 카테고리에서의 AP
+
+  결과
+  - GQA데이터 사용 시 성능이 다 높다. GQA 데이터가 풍부한 텍스트 주석을 포함하고 있기 떄문
+  - Text guided CSPLayer, Image pooling attention 두 모듈 모두 사용했을 때 성능이 가장 뛰어남
+  - GQA 데이터 + RepVL-PAN의 모든 구성 요소 다 활용했을 때, APr성능이 22.5로 가장 높음
+  
+  
+- YOLO-World S, M, L 성능 비교
+- YOLO 각 스케일(C3, C4, C5)에서의 특징 맵 제거 또는 추가 시 성능 변화
+  
+4) Fine-tuning YOLO-World
+
+5) Open-Vocabulary Instance Segmentation
+
+Visulaizations
 
 
 <br>
@@ -113,6 +305,7 @@
 <br>
 
 ### Questions
-
+- 부정명사를 무작위 샘플링한다고 했는데 어디서 샘플링을 하는 걸까
+- 
 
 ### New ideas / Comments
