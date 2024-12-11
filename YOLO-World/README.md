@@ -252,33 +252,35 @@
 
 
 ### Solution approach - Experiments
-![image](https://github.com/user-attachments/assets/da7a588f-7930-45ac-b557-392005e949b5)    
-- Vision language 기반 zero shot 객체 검출을 위해 설계된 SOTA 수준 보여주는 방법들과 비교 : GLIP, GLIPv2, Grounding DINO, DetCLIP    
-- 비교기준 : AP(zero shot 성능), inference speed, model parameters, pretraining data    
+
+### 1️⃣ 실험 목적 : Vision language 기반 zero shot 객체 검출을 위해 설계된 SOTA 수준 보여주는 방법들과 비교 : GLIP, GLIPv2, Grounding DINO, DetCLIP   
+![image](https://github.com/user-attachments/assets/da7a588f-7930-45ac-b557-392005e949b5)        
+> #### 📌 비교기준   
+> - AP(zero shot 성능), inference speed, model parameters, pretraining data    
 > #### 📌 결과   
 > - 결과 1 : YOLO-World는 LVIS에서 Zero-Shot 성능(AP) 기준으로 35.4 AP를 달성   
 > - 결과 2 : YOLO-World-S는 13M 파라미터라는 경량 구성에서도 강력한 Zero-Shot 성능을 보임   
 > - 결과 3 : DetCLIP 대비 20배 빠른 추론 속도   
 > - 결과 4 : GLIP, GLIPv2, Grounding DINO와 달리 Cap4M (CC3M + SBU)와 같은 추가 데이터 없이도 더 나은 성능을 보임   
-  
-![image](https://github.com/user-attachments/assets/414f405d-28bb-41e1-8671-b1868f6721bb)
-- 사전 학습 데이터의 다양성   
-  다양한 데이터셋이 사전 학습 성능 및 Zero-Shot 검출 성능에 미치는 영향을 분석   
-  Objects365 단독 사용 vs. Objects365 + GoldG 사용      
-> #### 📌 결과 : 데이터 셋의 다양성이 모델성능에 긍정적 영향 미침   
-- pseudo labeling 효과   
-  CC3M 데이터셋에서 생성된 pseudo label이 모델 학습에 기여하는 정도 평가   
-> #### 📌 결과 : 성능에 유의미한 기여함   
 
+### 2️⃣  
+### 1) 실험 목적 : 사전 학습 데이터의 다양성 (다양한 데이터셋이 사전 학습 성능 및 Zero-Shot 검출 성능에 미치는 영향을 분석)     
+- Objects365 단독 사용 vs. Objects365 + GoldG 사용   
+### 2) 실험 목적 : pseudo labeling 효과 (CC3M 데이터셋에서 생성된 pseudo label이 모델 학습에 기여하는 정도 평가)   
+![image](https://github.com/user-attachments/assets/414f405d-28bb-41e1-8671-b1868f6721bb)   
+> #### 📌 결과 1 : 데이터 셋의 다양성이 모델성능에 긍정적 영향 미침    
+> #### 📌 결과 2 : pseudo labeling이 성능에 유의미한 기여함    
+
+### 3️⃣ 텍스트 인코더 역할 : Frozen vs. Fine-tuned    
 ![image](https://github.com/user-attachments/assets/e17ed39c-f0e9-4941-bff3-784b86e07006)    
-- 텍스트 인코더 역할 : Frozen vs. Fine-tuned    
 > #### 📌 결과   
 >  - BERT-base는 Frozen에서 APr 성능이 매우 낮다.   
 >  - BERT-base는 Fine tuning하니 성능이 향상 됐다.   
 >  - CLIP-base는 Frozen에서 AP, APr 모두 BERT보다 성능이 높다.   
 >  - CLIP-base는 Fine tuning하니 오히려 성능 감소(왜냐, O365는 365개 카테고리로 제한된 데이터셋으로 CLIP의 일반화 능력이 오히려 저하됨)   
 >  - Zero-Shot Detection에서 CLIP의 사전 학습된 임베딩이 효과적임   
-    
+
+### 4️⃣ GQA데이터 사용시 성능 여부 + Text guided CSPLayer, Image pooling attention 사용이 유의미한지   
 ![image](https://github.com/user-attachments/assets/ee875e8e-7ef7-437c-9d02-18cb9b4610e4)   
 > #### 📌 비교기준     
 > - GQA 데이터셋 사용여부, T-I(Text guided CSPLayer), I-T(Image pooling attention)   
@@ -291,10 +293,9 @@
 >  - GQA데이터 사용 시 성능이 다 높다. GQA 데이터가 풍부한 텍스트 주석을 포함하고 있기 떄문   
 >  - Text guided CSPLayer, Image pooling attention 두 모듈 모두 사용했을 때 성능이 가장 뛰어남   
 >  - GQA 데이터 + RepVL-PAN의 모든 구성 요소 다 활용했을 때, APr성능이 22.5로 가장 높음   
-  
-![image](https://github.com/user-attachments/assets/d2467377-723d-4f39-9b6f-54b20f2d4cbe)
-- Fine-tuning YOLO-World   
-  YOLO-World와 기존의 YOLO 계열 모델(YOLOv6, YOLOv7, YOLOv8)을 COCO 데이터셋에서 비교한 결과
+
+### 5️⃣ Fine-tuning YOLO-World : YOLO-World와 기존의 YOLO 계열 모델(YOLOv6, YOLOv7, YOLOv8)을 COCO 데이터셋에서 비교한 결과   
+![image](https://github.com/user-attachments/assets/d2467377-723d-4f39-9b6f-54b20f2d4cbe)   
 > #### 📌 비교기준    
 > - x : 사전 학습 없이 scratch에서 학습   
 > - O : Objects365   
@@ -308,9 +309,9 @@
 >  - COCO 데이터 셋처럼 어휘 크기가 작은 경우, RepVL-PAN의 중요성은 상대적으로 낮음. RepVL-PAN 제거해도 성능 손실이 적고 FPS 향상됨   
 >  - 즉, 사전학습, Fine tuning을 통해 성능, 효율성 모두 기존 YOLO 모델 능가하거나 동등함   
 
+
+### 6️⃣ Fine-tuning YOLO-World : YOLO-World는 모든 크기(S, M, L)에서 YOLOv8 대비 우수한 성능을 보임   
 ![image](https://github.com/user-attachments/assets/cfd8a4e6-9412-41b8-841e-fce905ea13d6)   
-- Fine-tuning YOLO-World  
-  YOLO-World는 모든 크기(S, M, L)에서 YOLOv8 대비 우수한 성능을 보임   
 > #### 📌 결과    
 > - APr : 20.4 → YOLOv8-L(10.2) 대비 +10.2 APr   
 > - YOLO-World는 ViLD, RegionCLIP, Detic 등 최신 모델과 비교해도 성능이 우수   
