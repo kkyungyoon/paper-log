@@ -261,37 +261,70 @@ Experiments
   - BERT-base는 Frozen에서 APr 성능이 매우 낮다.
   - BERT-base는 Fine tuning하니 성능이 향상 됐다.
   - CLIP-base는 Frozen에서 AP, APr 모두 BERT보다 성능이 높다.
-  - CLIP-base는 Fine tuning하니 
+  - CLIP-base는 Fine tuning하니 오히려 성능 감소(왜냐, O365는 365개 카테고리로 제한된 데이터셋으로 CLIP의 일반화 능력이 오히려 저하됨)
+  - Zero-Shot Detection에서 CLIP의 사전 학습된 임베딩이 효과적임
+   
   ![image](https://github.com/user-attachments/assets/ee875e8e-7ef7-437c-9d02-18cb9b4610e4)
 - GQA 데이터셋 사용여부, T-I(Text guided CSPLayer), I-T(Image pooling attention)
 - AP : 전체 검출 성능
 - APr : Rare 카테고리에서의 AP
 - APc : Common 카테고리에서의 AP
 - APf : Frequent 카테고리에서의 AP
-
   결과
   - GQA데이터 사용 시 성능이 다 높다. GQA 데이터가 풍부한 텍스트 주석을 포함하고 있기 떄문
   - Text guided CSPLayer, Image pooling attention 두 모듈 모두 사용했을 때 성능이 가장 뛰어남
   - GQA 데이터 + RepVL-PAN의 모든 구성 요소 다 활용했을 때, APr성능이 22.5로 가장 높음
   
-  
-- YOLO-World S, M, L 성능 비교
-- YOLO 각 스케일(C3, C4, C5)에서의 특징 맵 제거 또는 추가 시 성능 변화
-  
-4) Fine-tuning YOLO-World
-
-5) Open-Vocabulary Instance Segmentation
+- Fine-tuning YOLO-World
+![image](https://github.com/user-attachments/assets/d2467377-723d-4f39-9b6f-54b20f2d4cbe)
+- YOLO-World와 기존의 YOLO 계열 모델(YOLOv6, YOLOv7, YOLOv8)을 COCO 데이터셋에서 비교한 결과
+- x : 사전 학습 없이 scratch에서 학습
+- O : Objects365
+- G : GoldG
+- C : CC3M
+- FPS : 초당 프레임 수
+  결과
+  - 사전학습만으로 COCO 데이터셋에서 zero shot 검출을 수행하며, 일부 YOLO 모델의 scratch 학습 성능과 유사한 수준 달성
+  - fine tuning시, 기존 YOLOv8-L 능가
+  - COCO 데이터 셋처럼 어휘 크기가 작은 경우, RepVL-PAN의 중요성은 상대적으로 낮음. RepVL-PAN 제거해도 성능 손실이 적고 FPS 향상됨
+  - 즉, 사전학습, Fine tuning을 통해 성능, 효율성 모두 기존 YOLO 모델 능가하거나 동등함
+![image](https://github.com/user-attachments/assets/cfd8a4e6-9412-41b8-841e-fce905ea13d6)
+- YOLO-World는 모든 크기(S, M, L)에서 YOLOv8 대비 우수한 성능을 보임
+- APr : 20.4 → YOLOv8-L(10.2) 대비 +10.2 APr
+- YOLO-World는 ViLD, RegionCLIP, Detic 등 최신 모델과 비교해도 성능이 우수
+- YOLO-World-S (소형 모델) : APr에서도 YOLOv8-S(7.4) 대비 +5.4 APr
+- YOLO-World-M (중형 모델) : APf에서는 39.0으로 가장 높은 성능
+- YOLO-World-L (대형 모델) : 모든 지표(AP, APr, APc, APf)에서 최고 성능 기록
+- YOLO-World는 One-Stage Detector임에도 불구하고, 기존 Two-Stage Detector(DetPro, BARON, ViLD 등)보다 높은 성능을 달성
 
 Visulaizations
+![image](https://github.com/user-attachments/assets/a2800e24-245c-4eed-9d27-dc89c77168a6)
+- YOLO-World-L은 사전 학습된 상태에서 LVIS 데이터셋에 대해 Zero-Shot 방식으로 객체를 탐지
+- 사전학습된 YOLO-World-L을 채택해서 LVIS 데이터셋의 전체 카테고리(1203개)를 사용하여 COCO val2017 데이터셋에서 추론을 수행
+- 모델은 사전 학습된 상태에서 COCO의 객체들을 LVIS의 1203개 카테고리로 매칭
+- YOLO-World-L은 COCO 데이터셋에서 추가 학습 없이 LVIS의 대규모 카테고리를 통해 객체 탐지 수행
 
+![image](https://github.com/user-attachments/assets/8090f443-5f20-4491-b3f0-3eb595f95a3d)
+- 사용자가 정의한 맞춤 카테고리(Custom Categories)를 기반으로 YOLO-World-L의 객체 탐지 성능을 평가
+- 특정 객체의 세부 부분 감지 : 자동차를 타이어, 창문, 문 등으로 세분화하여 탐지
+- 서브 카테고리 구분 : 개를 리트리버, 불독, 푸들 등 세부적인 견종으로 분류
 
+![image](https://github.com/user-attachments/assets/34a3721a-8074-461e-b1f7-3d25d3678e2f) 
+- 모델은 입력된 서술형 명사구와 이미지의 객체 간 관계를 학습한 결과를 활용하여 정확히 매칭
+- the red car라는 입력 명사구에 대해 이미지에서 빨간 자동차를 찾아 Bounding Box 생성
+  
 <br>
 
 ### Conclusion
+- YOLO-World는 실시간 Open-Vocabulary detection을 목표로 한 최신 탐지기
+- 기존 YOLO를 Vision-Language 아키텍처로 재구성하고 RepVL-PAN을 통해 효율성과 탐지 성능을 강화
+- 탐지, 정합, 이미지-텍스트 데이터를 활용한 사전 학습을 통해 대규모 어휘 탐지 능력을 확보
+- 소형 모델에서도 효과적인 Vision-Language 학습 가능성을 입증
+  
 - 다양한 객체를 Zero-Shot 방식으로 효율적으로 검출할 수 있도록 한다.
 - LVIS 데이터 셋에서 V100 GPU에서 35.4 AP, 52.0 FPS의 성능을 달성했고, 정확도, 속도 모두에서 최신 기법들보다 뛰어난 성능을 보여준다.
 - 더하여, Fine Tuning된 YOLO-World는 Object Detection, Open Vocabulary Instance Segmentation 등 여러 다운스트림 작업에서 뛰어난 성능을 발휘했다.
-   	  
+
 <br>
 
 ### Strong points
